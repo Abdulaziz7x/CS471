@@ -1,0 +1,32 @@
+{% extends "bookmodule/lab5_base.html" %}
+
+{% block content %}
+<p class="intro-text">
+    This lab session covers additional HTML and CSS Fundamentals (part2). By the end of this session,
+    students should have a very good understanding of how to integrate links, text formatting, lists, and
+    tables into arbitrary webpages with static files in Django framework.
+</p>
+
+<h3 class="section-heading">Pre-lab Preparation:</h3>
+<ol>
+    <li>Having bookmodule and usermodule in apps directory, each containing separate URL configurations.</li>
+    <li>Template directory located in <code>apps</code> with necessary settings.</li>
+</ol>
+
+<h3 class="section-heading">Lab Activities:</h3>
+<p class="lab-subtitle">
+    <strong>Task 1:</strong> (Links and layout customization) Create a page with the URL
+    <code>/books/html5/links</code> to display the following. You should use external CSS
+    (<code>main.css</code>) with class and id for styling purposes and include different
+    link states such as visited, hover, and active.
+</p>
+
+<div class="code-pill">127.0.0.1:8000/books/html5/links</div>
+
+<div class="task-links">
+    <a id="style1" href="https://www.qu.edu.sa" target="_blank" rel="noreferrer">Go to QU website (open a new tab)</a>
+    <a id="style2" href="https://www.qu.edu.sa" target="_blank" rel="noreferrer">Go to QU website (open in the same page/tab)</a>
+    <a id="style3" href="https://www.qu.edu.sa">Go to QU website (open in the same page/tab)</a>
+</div>
+{% endblock %}
+

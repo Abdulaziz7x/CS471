@@ -1,0 +1,46 @@
+{% extends "bookmodule/lab5_base.html" %}
+
+{% block content %}
+<p class="lab-subtitle">
+    <strong>Task 3:</strong> (Listing [nested]) Create a third page with the URL
+    <code>/books/html5/listing</code> to display the following. You may also add style to the external
+    CSS file <code>main.css</code>.
+</p>
+
+<div class="code-pill">127.0.0.1:8000/books/html5/listing</div>
+
+<div class="listing-title">The Best Features of the Internet</div>
+
+<div class="listing-card">
+    <ul>
+        <li>You can meet new people from countries around the world.</li>
+        <li>You have access to new media as it becomes public:
+            <ol>
+                <li>New games</li>
+                <li>New applications
+                    <ol>
+                        <li>For business</li>
+                        <li>For pleasure</li>
+                    </ol>
+                </li>
+                <li>Around the clock news</li>
+                <li>Search engines</li>
+                <li>Shopping</li>
+                <li>Programming
+                    <ol>
+                        <li>XML</li>
+                        <li>Java</li>
+                        <li>HTML5</li>
+                        <li>JavaScript</li>
+                        <li>New languages</li>
+                    </ol>
+                </li>
+            </ol>
+        </li>
+        <li>Links</li>
+        <li>Keeping in touch with old friends</li>
+        <li>It is the technology of the future!</li>
+    </ul>
+</div>
+{% endblock %}
+

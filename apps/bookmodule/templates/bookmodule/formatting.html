@@ -1,0 +1,27 @@
+{% extends "bookmodule/lab5_base.html" %}
+
+{% block content %}
+<p class="lab-subtitle">
+    <strong>Task 2:</strong> (Text formatting) Create another page with the URL
+    <code>/books/html5/formatting</code> to display the following. You may use the external CSS file
+    <code>main.css</code> to add style to the h1 tag that contains "Example of Formatting tags".
+</p>
+
+<div class="code-pill">127.0.0.1:8000/books/html5/formatting</div>
+
+<div class="example-box">Example of Formatting tags</div>
+
+<div class="formatting-list">
+    <p>This text has <b>subtext</b> using b tag</p>
+    <p>This text has <strong>subtext</strong> using strong tag</p>
+    <p>This text has <i>subtext</i> using i tag</p>
+    <p>This text has <em>subtext</em> using emphasize tag</p>
+    <p>This text has <small>subtext</small> using small tag</p>
+    <p>This text has <mark>subtext</mark> using mark tag</p>
+    <p>This text has <del>subtext</del> using del tag</p>
+    <p>This text has <ins>subtext</ins> using ins tag</p>
+    <p>This text has X<sub>subtext</sub> using sub tag</p>
+    <p>This text has X<sup>subtext</sup> using sup tag</p>
+</div>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <link rel="stylesheet" href="{% static 'bookmodule/main.css' %}">
+</head>
+<body>
+    <main class="lab-page">
+        <table class="lab-banner">
+            <tr>
+                <td class="banner-title">CS471 &ndash; Web Technologies<br>(Laboratory)</td>
+                <td class="banner-logo">Qassim University<br>College of Computer</td>
+                <td class="banner-lab">Lab 5<br>HTML and CSS (Part 2)</td>
+            </tr>
+        </table>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
+
