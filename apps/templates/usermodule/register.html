@@ -1,0 +1,51 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}User Registration{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>User Registration</h1>
+    <p>Lab 6 POST form handling example in Django.</p>
+</div>
+
+<div class="card">
+    <form method="post" action="{% url 'user-register' %}">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div>
+                <label for="full_name">Full Name</label>
+                <input id="full_name" type="text" name="full_name" value="{{ request.POST.full_name }}" placeholder="Enter full name">
+                {% if errors.full_name %}<div class="message error">{{ errors.full_name }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" value="{{ request.POST.email }}" placeholder="Enter email">
+                {% if errors.email %}<div class="message error">{{ errors.email }}</div>{% endif %}
+            </div>
+            <div>
+                <label for="city">City</label>
+                <input id="city" type="text" name="city" value="{{ request.POST.city }}" placeholder="Enter city">
+            </div>
+            <div>
+                <label for="program">Program</label>
+                <input id="program" type="text" name="program" value="{{ request.POST.program }}" placeholder="Enter program">
+            </div>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<div class="card">
+    {% if submitted %}
+        <div class="message success">Form submitted successfully.</div>
+        <table>
+            <tr><th>Full Name</th><td>{{ submitted.full_name }}</td></tr>
+            <tr><th>Email</th><td>{{ submitted.email }}</td></tr>
+            <tr><th>City</th><td>{{ submitted.city }}</td></tr>
+            <tr><th>Program</th><td>{{ submitted.program }}</td></tr>
+        </table>
+    {% else %}
+        <p>Submitted values will be displayed here after posting the form.</p>
+    {% endif %}
+</div>
+{% endblock content %}

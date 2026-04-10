@@ -2,6 +2,14 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 
+BOOKS = [
+    {"title": "Clean Code", "author": "Robert C. Martin", "edition": "1st", "price": 125},
+    {"title": "Introduction to Algorithms", "author": "Thomas H. Cormen", "edition": "4th", "price": 210},
+    {"title": "Learning Django", "author": "William S. Vincent", "edition": "4th", "price": 145},
+    {"title": "Python Crash Course", "author": "Eric Matthes", "edition": "3rd", "price": 135},
+]
+
+
 def index(request):
     name = request.GET.get("name") or "world!"
     return render(request, "bookmodule/index.html", {"name": name})
@@ -9,6 +17,31 @@ def index(request):
 
 def index2(request, val1=0):
     return HttpResponse("value1 = " + str(val1))
+
+
+def search_books(request):
+    title = request.GET.get("title", "").strip().lower()
+    author = request.GET.get("author", "").strip().lower()
+
+    has_query = bool(title or author)
+    results = [
+        book for book in BOOKS
+        if (not title or title in book["title"].lower())
+        and (not author or author in book["author"].lower())
+    ] if has_query else []
+
+    return render(
+        request,
+        "bookmodule/search.html",
+        {
+            "has_query": has_query,
+            "books": results,
+            "query": {
+                "title": request.GET.get("title", "").strip(),
+                "author": request.GET.get("author", "").strip(),
+            },
+        },
+    )
 
 
 def viewbook(request, bookId):

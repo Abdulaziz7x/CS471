@@ -5,6 +5,7 @@ Django settings for DjangoProjects project.
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATE_DIR = BASE_DIR / "apps" / "templates"
 
 SECRET_KEY = "django-insecure-(_(_(3zixat_2p=2j6=5y97_@f8a%@uby(he-72gx-z^obu*($"
 
@@ -38,7 +39,7 @@ ROOT_URLCONF = "DjangoProjects.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [TEMPLATE_DIR],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -85,4 +86,3 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
