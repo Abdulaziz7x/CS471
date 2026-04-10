@@ -1,58 +1,38 @@
 {% extends "layouts/base.html" %}
+{% load static %}
 
 {% block title %}Searching Page{% endblock title %}
 
+{% block stylesheets %}
+<style>
+    .searchForm {
+        margin-top: 20px;
+    }
+
+    button:hover {
+        background-color: green;
+        color: white;
+    }
+</style>
+{% endblock stylesheets %}
+
 {% block content %}
 <div class="card">
-    <h1>Search for Books</h1>
-    <p>Lab 6 GET form handling example in Django.</p>
-</div>
+    <h1>Searching Page</h1>
+    <form class="searchForm" method="post" action="">
+        {% csrf_token %}
+        <label>Keywords:</label>
+        <input type="text" name="keyword" placeholder="enter a keyword" />
 
-<div class="card">
-    <form method="get" action="{% url 'book-search' %}">
-        <div class="form-grid">
-            <div>
-                <label for="title">Book Title</label>
-                <input id="title" type="text" name="title" value="{{ query.title }}" placeholder="Enter a title">
-            </div>
-            <div>
-                <label for="author">Author</label>
-                <input id="author" type="text" name="author" value="{{ query.author }}" placeholder="Enter an author">
-            </div>
-        </div>
-        <button type="submit">Search</button>
+        <br />
+
+        <label>Search in:</label>
+        <label><input type="checkbox" name="title" />Title</label>
+        <label><input type="checkbox" name="author" />Author</label>
+
+        <br />
+
+        <button type="submit"><i class="fa fa-search" aria-hidden="true"></i> search</button>
     </form>
-</div>
-
-<div class="card">
-    {% if has_query %}
-        <h2>{{ books|length }} matching book{{ books|length|pluralize }}</h2>
-        {% if books %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Edition</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for book in books %}
-                        <tr>
-                            <td>{{ book.title }}</td>
-                            <td>{{ book.author }}</td>
-                            <td>{{ book.edition }}</td>
-                            <td>{{ book.price }} SAR</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No books matched the submitted values.</p>
-        {% endif %}
-    {% else %}
-        <p>Submit the form to display filtered search results.</p>
-    {% endif %}
 </div>
 {% endblock content %}

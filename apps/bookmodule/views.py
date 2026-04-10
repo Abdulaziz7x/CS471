@@ -3,10 +3,9 @@ from django.http import HttpResponse
 
 
 BOOKS = [
-    {"title": "Clean Code", "author": "Robert C. Martin", "edition": "1st", "price": 125},
-    {"title": "Introduction to Algorithms", "author": "Thomas H. Cormen", "edition": "4th", "price": 210},
-    {"title": "Learning Django", "author": "William S. Vincent", "edition": "4th", "price": 145},
-    {"title": "Python Crash Course", "author": "Eric Matthes", "edition": "3rd", "price": 135},
+    {"id": 12344321, "title": "Continuous Delivery", "author": "J. Humble and D. Farley"},
+    {"id": 56788765, "title": "Reverse Engineering", "author": "E. Eilam"},
+    {"id": 42311234, "title": "The Hundred-Page Machine Learning Book", "author": "Andriy Burkov"},
 ]
 
 
@@ -19,29 +18,25 @@ def index2(request, val1=0):
     return HttpResponse("value1 = " + str(val1))
 
 
-def search_books(request):
-    title = request.GET.get("title", "").strip().lower()
-    author = request.GET.get("author", "").strip().lower()
+def searchbooks(request):
+    if request.method == "POST":
+        string = request.POST.get("keyword", "").lower()
+        is_title = request.POST.get("title")
+        is_author = request.POST.get("author")
 
-    has_query = bool(title or author)
-    results = [
-        book for book in BOOKS
-        if (not title or title in book["title"].lower())
-        and (not author or author in book["author"].lower())
-    ] if has_query else []
+        newBooks = []
+        for item in BOOKS:
+            contained = False
+            if is_title and string in item["title"].lower():
+                contained = True
+            if is_author and string in item["author"].lower():
+                contained = True
+            if contained:
+                newBooks.append(item)
 
-    return render(
-        request,
-        "bookmodule/search.html",
-        {
-            "has_query": has_query,
-            "books": results,
-            "query": {
-                "title": request.GET.get("title", "").strip(),
-                "author": request.GET.get("author", "").strip(),
-            },
-        },
-    )
+        return render(request, "bookmodule/bookList.html", {"books": newBooks})
+
+    return render(request, "bookmodule/search.html")
 
 
 def viewbook(request, bookId):
