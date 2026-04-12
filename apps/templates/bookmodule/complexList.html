@@ -1,0 +1,47 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Complex Query{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Complex Query Results</h1>
+    <form method="get" action="{% url 'complex-query' %}">
+        <div class="form-grid">
+            <div>
+                <label for="min_price">Minimum price</label>
+                <input id="min_price" name="min_price" type="number" step="0.01" value="{{ min_price }}" />
+            </div>
+            <div>
+                <label for="min_edition">Minimum edition</label>
+                <input id="min_edition" name="min_edition" type="number" step="1" value="{{ min_edition }}" />
+            </div>
+        </div>
+        <button type="submit"><i class="fa fa-filter" aria-hidden="true"></i> run query</button>
+    </form>
+
+    {% if books %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Price</th>
+                    <th>Edition</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.price }} SAR</td>
+                        <td>{{ book.edition }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No books matched the complex query.</p>
+    {% endif %}
+</div>
+{% endblock content %}

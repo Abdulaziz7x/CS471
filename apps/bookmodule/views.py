@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
+from .models import Book
+
 
 BOOKS = [
     {"id": 12344321, "title": "Continuous Delivery", "author": "J. Humble and D. Farley"},
@@ -37,6 +39,46 @@ def searchbooks(request):
         return render(request, "bookmodule/bookList.html", {"books": newBooks})
 
     return render(request, "bookmodule/search.html")
+
+
+def simple_query(request):
+    query_text = request.GET.get("q", "Book").strip()
+    books = Book.objects.filter(title__icontains=query_text)
+    return render(
+        request,
+        "bookmodule/bookList.html",
+        {"books": books, "query_text": query_text, "mode": "simple"},
+    )
+
+
+def complex_query(request):
+    min_price = request.GET.get("min_price", "100").strip()
+    min_edition = request.GET.get("min_edition", "2").strip()
+
+    try:
+        min_price_value = float(min_price)
+    except ValueError:
+        min_price_value = 100.0
+
+    try:
+        min_edition_value = int(min_edition)
+    except ValueError:
+        min_edition_value = 2
+
+    books = Book.objects.filter(
+        price__gte=min_price_value,
+        edition__gte=min_edition_value,
+    ).order_by("-price", "-edition", "title")
+
+    return render(
+        request,
+        "bookmodule/complexList.html",
+        {
+            "books": books,
+            "min_price": min_price_value,
+            "min_edition": min_edition_value,
+        },
+    )
 
 
 def viewbook(request, bookId):

@@ -4,22 +4,39 @@
 
 {% block content %}
 <div class="card">
-    <h1>Books List</h1>
+    <h1>{% if mode == "simple" %}Simple Query Results{% else %}Books List{% endif %}</h1>
+    {% if mode == "simple" %}
+        <form method="get" action="{% url 'simple-query' %}">
+            <label for="q">Title contains</label>
+            <input id="q" name="q" type="text" value="{{ query_text }}" placeholder="enter part of a title" />
+            <button type="submit"><i class="fa fa-search" aria-hidden="true"></i> run query</button>
+        </form>
+    {% endif %}
     {% if books %}
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Title</th>
                     <th>Author</th>
+                    {% if mode == "simple" %}
+                        <th>Price</th>
+                        <th>Edition</th>
+                    {% else %}
+                        <th>ID</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for book in books %}
                     <tr>
-                        <td>{{ book.id }}</td>
                         <td>{{ book.title }}</td>
                         <td>{{ book.author }}</td>
+                        {% if mode == "simple" %}
+                            <td>{{ book.price }} SAR</td>
+                            <td>{{ book.edition }}</td>
+                        {% else %}
+                            <td>{{ book.id }}</td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

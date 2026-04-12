@@ -18,3 +18,18 @@ class BookModuleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Books List")
         self.assertContains(response, "Continuous Delivery")
+
+    def test_simple_query_page_uses_model_results(self):
+        response = self.client.get(reverse("simple-query"), {"q": "Book"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The Hundred-Page Machine Learning Book")
+
+    def test_complex_query_page_filters_books(self):
+        response = self.client.get(
+            reverse("complex-query"),
+            {"min_price": "100", "min_edition": "3"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Continuous Delivery")
+        self.assertContains(response, "The Hundred-Page Machine Learning Book")
+        self.assertNotContains(response, "Reversing: Secrets of Reverse Engineering")
