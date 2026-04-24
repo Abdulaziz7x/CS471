@@ -1,35 +1,17 @@
 # CS471
 
-Labs solutions for CS471 Web Technologies.
+Course repository for CS471 Web Technologies.
 
-## Lab 5
+This project contains Django-based lab work and examples for topics such as routing, templates, forms, models, queries, and multi-model relationships.
 
-This repo now includes Lab 5 for HTML and CSS (Part 2) using Django routes under:
+## Project Structure
 
-- `/books/html5/links`
-- `/books/html5/formatting`
-- `/books/html5/listing`
-- `/books/html5/tables`
+- `apps/bookmodule/` contains the book-related views, models, URLs, migrations, and tests
+- `apps/usermodule/` contains the user form example
+- `apps/templates/` contains shared and app-specific templates
+- `DjangoProjects/` contains the main Django project settings and URL configuration
 
-## Lab 8
-
-This repo also includes Lab 8 for Django Models (Part 2) under:
-
-- `/books/lab8/task1`
-- `/books/lab8/task2`
-- `/books/lab8/task3`
-- `/books/lab8/task4`
-- `/books/lab8/task5`
-- `/books/lab8/task7`
-
-The implementation adds:
-
-- a `Book` model with seeded fake data
-- `Address` and `Student` models
-- query pages using `Q`, sorting with `order_by`, and aggregation functions
-- a grouped city summary showing the number of students in each city
-
-## Run The Server
+## Running The Project
 
 1. Create a virtual environment:
    `python3 -m venv .venv`
@@ -37,5 +19,13 @@ The implementation adds:
    `source .venv/bin/activate`
 3. Install dependencies:
    `pip install -r requirements.txt`
-4. Start the server:
+4. Apply migrations:
+   `python3 manage.py migrate`
+5. Start the development server:
    `python3 manage.py runserver`
+
+## Testing
+
+Run the test suite with:
+
+`python3 manage.py test`
