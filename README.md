@@ -11,6 +11,24 @@ This repo now includes Lab 5 for HTML and CSS (Part 2) using Django routes under
 - `/books/html5/listing`
 - `/books/html5/tables`
 
+## Lab 8
+
+This repo also includes Lab 8 for Django Models (Part 2) under:
+
+- `/books/lab8/task1`
+- `/books/lab8/task2`
+- `/books/lab8/task3`
+- `/books/lab8/task4`
+- `/books/lab8/task5`
+- `/books/lab8/task7`
+
+The implementation adds:
+
+- a `Book` model with seeded fake data
+- `Address` and `Student` models
+- query pages using `Q`, sorting with `order_by`, and aggregation functions
+- a grouped city summary showing the number of students in each city
+
 ## Run The Server
 
 1. Create a virtual environment:

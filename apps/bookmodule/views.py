@@ -1,5 +1,8 @@
-from django.shortcuts import render
+from django.db.models import Avg, Count, Max, Min, Q, Sum
 from django.http import HttpResponse
+from django.shortcuts import render
+
+from .models import Address, Book
 
 
 BOOKS = [
@@ -67,3 +70,129 @@ def lab5_listing(request):
 
 def lab5_tables(request):
     return render(request, "bookmodule/tables.html", {"page_title": "Lab 5 - Tables"})
+
+
+def lab8_index(request):
+    tasks = [
+        {
+            "title": "Task 1",
+            "description": "Books with price less than or equal to 80 using the Q operator.",
+            "url_name": "lab8-task1",
+        },
+        {
+            "title": "Task 2",
+            "description": "Books with edition higher than 3 and title or author containing 'qu'.",
+            "url_name": "lab8-task2",
+        },
+        {
+            "title": "Task 3",
+            "description": "Books with no edition higher than 3 and no 'qu' in title or author.",
+            "url_name": "lab8-task3",
+        },
+        {
+            "title": "Task 4",
+            "description": "All books ordered by title using order_by.",
+            "url_name": "lab8-task4",
+        },
+        {
+            "title": "Task 5",
+            "description": "Book count and price aggregates using Django aggregation functions.",
+            "url_name": "lab8-task5",
+        },
+        {
+            "title": "Task 7",
+            "description": "Number of students in each city using the Address and Student models.",
+            "url_name": "lab8-task7",
+        },
+    ]
+    return render(request, "bookmodule/lab8_index.html", {"tasks": tasks})
+
+
+def lab8_task1(request):
+    books = Book.objects.filter(Q(price__lte=80)).order_by("id")
+    return render(
+        request,
+        "bookmodule/lab8_book_list.html",
+        {
+            "page_title": "Lab 8 - Task 1",
+            "heading": "Books With Price Less Than or Equal to 80",
+            "description": "Uses the Q operator to filter books whose price is less than or equal to 80.",
+            "books": books,
+        },
+    )
+
+
+def lab8_task2(request):
+    books = Book.objects.filter(
+        Q(edition__gt=3) & (Q(title__icontains="qu") | Q(author__icontains="qu"))
+    ).order_by("id")
+    return render(
+        request,
+        "bookmodule/lab8_book_list.html",
+        {
+            "page_title": "Lab 8 - Task 2",
+            "heading": "Books With Edition Greater Than 3 and 'qu' in Title or Author",
+            "description": "Combines multiple Q expressions with & and | operators.",
+            "books": books,
+        },
+    )
+
+
+def lab8_task3(request):
+    books = Book.objects.filter(
+        ~Q(edition__gt=3) & ~Q(title__icontains="qu") & ~Q(author__icontains="qu")
+    ).order_by("id")
+    return render(
+        request,
+        "bookmodule/lab8_book_list.html",
+        {
+            "page_title": "Lab 8 - Task 3",
+            "heading": "Books With Edition Not Greater Than 3 and No 'qu' in Title or Author",
+            "description": "Uses the ~ operator with Q expressions to build the opposite query.",
+            "books": books,
+        },
+    )
+
+
+def lab8_task4(request):
+    books = Book.objects.order_by("title")
+    return render(
+        request,
+        "bookmodule/lab8_book_list.html",
+        {
+            "page_title": "Lab 8 - Task 4",
+            "heading": "Books Ordered by Title",
+            "description": "Lists all books ordered alphabetically by title using order_by.",
+            "books": books,
+        },
+    )
+
+
+def lab8_task5(request):
+    stats = Book.objects.aggregate(
+        total_books=Count("id"),
+        total_price=Sum("price"),
+        average_price=Avg("price"),
+        maximum_price=Max("price"),
+        minimum_price=Min("price"),
+    )
+    return render(
+        request,
+        "bookmodule/lab8_aggregation.html",
+        {
+            "page_title": "Lab 8 - Task 5",
+            "stats": stats,
+        },
+    )
+
+
+def lab8_task7(request):
+    city_counts = Address.objects.annotate(student_count=Count("students")).order_by("city")
+    return render(
+        request,
+        "bookmodule/lab8_city_counts.html",
+        {
+            "page_title": "Lab 8 - Task 7",
+            "city_counts": city_counts,
+        },
+    )
