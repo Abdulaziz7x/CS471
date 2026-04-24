@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Lab 8 Overview{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Lab 8: Django Models (Part 2)</h1>
+    <p>This page links the required Lab 8 tasks for advanced queries, aggregation, and multi-model data.</p>
+</div>
+
+{% for task in tasks %}
+<div class="card">
+    <h2>{{ task.title }}</h2>
+    <p>{{ task.description }}</p>
+    <a href="{% url task.url_name %}">Open {{ task.title }}</a>
+</div>
+{% endfor %}
+{% endblock content %}

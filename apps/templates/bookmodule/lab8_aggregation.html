@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Book Aggregation Summary</h1>
+    <p>This page shows the required aggregation values for the <code>Book</code> table.</p>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Number of books</th>
+                <td>{{ stats.total_books }}</td>
+            </tr>
+            <tr>
+                <th>Total price</th>
+                <td>{{ stats.total_price }}</td>
+            </tr>
+            <tr>
+                <th>Average price</th>
+                <td>{{ stats.average_price|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th>Maximum price</th>
+                <td>{{ stats.maximum_price }}</td>
+            </tr>
+            <tr>
+                <th>Minimum price</th>
+                <td>{{ stats.minimum_price }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

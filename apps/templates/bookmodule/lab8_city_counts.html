@@ -1,0 +1,31 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Students Per City</h1>
+    <p>This page shows the number of students linked to each city.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>City</th>
+                <th>Student Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for address in city_counts %}
+            <tr>
+                <td>{{ address.city }}</td>
+                <td>{{ address.student_count }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No city data is available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
