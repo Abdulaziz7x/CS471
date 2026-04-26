@@ -1,8 +1,9 @@
-from django.db.models import Avg, Count, Max, Min, Q, Sum
+from django.db.models import Avg, Count, Max, Min, OuterRef, Q, Subquery, Sum, Value
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from .models import Address, Book
+from .models import Address, Book, Publisher
 
 
 BOOKS = [
@@ -234,5 +235,177 @@ def lab8_task7(request):
         {
             "page_title": "Lab 8 - Task 7",
             "city_counts": city_counts,
+        },
+    )
+
+
+def lab9_index(request):
+    tasks = [
+        {
+            "title": "Task 1",
+            "description": "List books with a transient percentage availability field.",
+            "url_name": "lab9-task1",
+        },
+        {
+            "title": "Task 2",
+            "description": "List publishers annotated with their total book stock.",
+            "url_name": "lab9-task2",
+        },
+        {
+            "title": "Task 3",
+            "description": "Get the oldest book managed by each publisher.",
+            "url_name": "lab9-task3",
+        },
+        {
+            "title": "Task 4",
+            "description": "Calculate average, minimum, and maximum book prices per publisher.",
+            "url_name": "lab9-task4",
+        },
+        {
+            "title": "Task 5",
+            "description": "Count highly rated books per publisher with their total quantity.",
+            "url_name": "lab9-task5",
+        },
+        {
+            "title": "Task 6",
+            "description": "Count books per publisher filtered by price and quantity constraints.",
+            "url_name": "lab9-task6",
+        },
+    ]
+    return render(request, "bookmodule/lab9_index.html", {"tasks": tasks})
+
+
+def lab9_task1(request):
+    books = list(Book.objects.select_related("publisher").all().order_by("title"))
+    total_quantity = sum(book.quantity for book in books)
+
+    for book in books:
+        if total_quantity:
+            book.availability_percentage = (book.quantity / total_quantity) * 100
+        else:
+            book.availability_percentage = 0
+
+    return render(
+        request,
+        "bookmodule/lab9_availability.html",
+        {
+            "page_title": "Lab 9 - Task 1",
+            "books": books,
+            "total_quantity": total_quantity,
+        },
+    )
+
+
+def lab9_task2(request):
+    publishers = Publisher.objects.annotate(
+        total_book_stock=Coalesce(Sum("books__quantity"), Value(0))
+    ).order_by("name")
+    rows = [
+        [publisher.name, publisher.location, publisher.total_book_stock]
+        for publisher in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_publishers.html",
+        {
+            "page_title": "Lab 9 - Task 2",
+            "heading": "Publishers With Total Book Stock",
+            "headers": ["Name", "Location", "Total Book Stock"],
+            "rows": rows,
+        },
+    )
+
+
+def lab9_task3(request):
+    oldest_books = Book.objects.filter(publisher=OuterRef("pk")).order_by("pubdate", "title")
+    publishers = Publisher.objects.annotate(
+        oldest_book_title=Subquery(oldest_books.values("title")[:1]),
+        oldest_book_pubdate=Subquery(oldest_books.values("pubdate")[:1]),
+    ).order_by("name")
+    return render(
+        request,
+        "bookmodule/lab9_oldest_books.html",
+        {
+            "page_title": "Lab 9 - Task 3",
+            "publishers": publishers,
+        },
+    )
+
+
+def lab9_task4(request):
+    publishers = Publisher.objects.annotate(
+        average_price=Avg("books__price"),
+        minimum_price=Min("books__price"),
+        maximum_price=Max("books__price"),
+    ).order_by("name")
+    rows = [
+        [
+            publisher.name,
+            f"{publisher.average_price:.2f}" if publisher.average_price is not None else "0.00",
+            f"{publisher.minimum_price:.2f}" if publisher.minimum_price is not None else "0.00",
+            f"{publisher.maximum_price:.2f}" if publisher.maximum_price is not None else "0.00",
+        ]
+        for publisher in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_publishers.html",
+        {
+            "page_title": "Lab 9 - Task 4",
+            "heading": "Publisher Price Statistics",
+            "headers": ["Name", "Average Price", "Minimum Price", "Maximum Price"],
+            "rows": rows,
+        },
+    )
+
+
+def lab9_task5(request):
+    publishers = Publisher.objects.annotate(
+        highly_rated_books_count=Count("books", filter=Q(books__rating__gte=4), distinct=True),
+        highly_rated_books_quantity=Coalesce(
+            Sum("books__quantity", filter=Q(books__rating__gte=4)),
+            Value(0),
+        ),
+    ).order_by("name")
+    rows = [
+        [
+            publisher.name,
+            publisher.highly_rated_books_count,
+            publisher.highly_rated_books_quantity,
+        ]
+        for publisher in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_publishers.html",
+        {
+            "page_title": "Lab 9 - Task 5",
+            "heading": "Publishers With Highly Rated Books",
+            "headers": ["Name", "Highly Rated Book Count", "Highly Rated Book Quantity"],
+            "rows": rows,
+        },
+    )
+
+
+def lab9_task6(request):
+    publishers = Publisher.objects.annotate(
+        filtered_books_count=Count(
+            "books",
+            filter=Q(books__price__gt=50, books__quantity__lt=5, books__quantity__gte=1),
+            distinct=True,
+        )
+    ).order_by("name")
+    rows = [
+        [publisher.name, publisher.filtered_books_count]
+        for publisher in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_publishers.html",
+        {
+            "page_title": "Lab 9 - Task 6",
+            "heading": "Filtered Book Counts Per Publisher",
+            "headers": ["Name", "Filtered Book Count"],
+            "rows": rows,
         },
     )

@@ -1,0 +1,31 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Books With Percentage Availability</h1>
+    <p>Total stock across all books: <strong>{{ total_quantity }}</strong></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Publisher</th>
+                <th>Quantity</th>
+                <th>Availability Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.publisher.name|default:"No publisher" }}</td>
+                <td>{{ book.quantity }}</td>
+                <td>{{ book.availability_percentage|floatformat:2 }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
