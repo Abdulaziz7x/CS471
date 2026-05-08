@@ -283,3 +283,88 @@ class BookModuleTests(TestCase):
         self.assertEqual(stats["Riyadh Reads"], 1)
         self.assertEqual(stats["Jeddah House"], 0)
         self.assertEqual(stats["Dammam Press"], 2)
+
+    def test_lab10_part1_add_book_creates_record(self):
+        response = self.client.post(
+            reverse("lab10-part1-add"),
+            {
+                "title": "Designing Data-Intensive Applications",
+                "author": "Martin Kleppmann",
+                "price": "135.5",
+                "edition": "2",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Book.objects.filter(title="Designing Data-Intensive Applications").exists())
+
+    def test_lab10_part1_edit_book_updates_record(self):
+        book = Book.objects.get(title="Continuous Delivery")
+        response = self.client.post(
+            reverse("lab10-part1-edit", args=[book.id]),
+            {
+                "title": "Continuous Delivery Revised",
+                "author": "J. Humble and D. Farley",
+                "price": "125",
+                "edition": "5",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        book.refresh_from_db()
+        self.assertEqual(book.title, "Continuous Delivery Revised")
+        self.assertEqual(book.edition, 5)
+
+    def test_lab10_part1_delete_book_removes_record(self):
+        book = Book.objects.get(title="Clean Code")
+        response = self.client.get(reverse("lab10-part1-delete", args=[book.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Book.objects.filter(id=book.id).exists())
+
+    def test_lab10_part2_add_book_validates_input(self):
+        response = self.client.post(
+            reverse("lab10-part2-add"),
+            {
+                "title": "Invalid Book",
+                "author": "Tester",
+                "price": "-10",
+                "edition": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Price must be greater than zero.")
+        self.assertContains(response, "Edition must be at least 1.")
+        self.assertFalse(Book.objects.filter(title="Invalid Book").exists())
+
+    def test_lab10_part2_add_book_creates_record(self):
+        response = self.client.post(
+            reverse("lab10-part2-add"),
+            {
+                "title": "Refactoring",
+                "author": "Martin Fowler",
+                "price": "99.99",
+                "edition": "2",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Book.objects.filter(title="Refactoring").exists())
+
+    def test_lab10_part2_edit_book_updates_record(self):
+        book = Book.objects.get(title="Django for APIs")
+        response = self.client.post(
+            reverse("lab10-part2-edit", args=[book.id]),
+            {
+                "title": "Django for APIs Updated",
+                "author": "William Vincent",
+                "price": "70",
+                "edition": "3",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        book.refresh_from_db()
+        self.assertEqual(book.title, "Django for APIs Updated")
+        self.assertEqual(book.price, 70)
+
+    def test_lab10_part2_delete_book_removes_record(self):
+        book = Book.objects.get(title="Learning Python")
+        response = self.client.get(reverse("lab10-part2-delete", args=[book.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Book.objects.filter(id=book.id).exists())

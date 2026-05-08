@@ -1,0 +1,20 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Lab 10 Overview{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Lab 10: CRUD Operations</h1>
+    <p>This lab adds CRUD routes for books, then reimplements the same workflow with Django forms validation.</p>
+</div>
+
+{% for section in sections %}
+<div class="card">
+    <h2>{{ section.title }}</h2>
+    <p>{{ section.description }}</p>
+    {% for link in section.links %}
+        <p><a href="{% url link.url_name %}">{{ link.label }}</a></p>
+    {% endfor %}
+</div>
+{% endfor %}
+{% endblock content %}

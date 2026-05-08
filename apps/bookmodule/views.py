@@ -1,8 +1,9 @@
 from django.db.models import Avg, Count, Max, Min, OuterRef, Q, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import BookForm
 from .models import Address, Book, Publisher
 
 
@@ -409,3 +410,213 @@ def lab9_task6(request):
             "rows": rows,
         },
     )
+
+
+def lab10_index(request):
+    sections = [
+        {
+            "title": "Part 1",
+            "description": "CRUD operations using direct Django model handling.",
+            "links": [
+                {"label": "List Books", "url_name": "lab10-part1-list"},
+                {"label": "Add Book", "url_name": "lab10-part1-add"},
+            ],
+        },
+        {
+            "title": "Part 2",
+            "description": "CRUD operations reimplemented using Django forms validation.",
+            "links": [
+                {"label": "List Books", "url_name": "lab10-part2-list"},
+                {"label": "Add Book", "url_name": "lab10-part2-add"},
+            ],
+        },
+    ]
+    return render(request, "bookmodule/lab10_index.html", {"sections": sections})
+
+
+def lab10_part1_list_books(request):
+    books = Book.objects.order_by("title", "id")
+    return render(
+        request,
+        "bookmodule/lab10_book_list.html",
+        {
+            "page_title": "Lab 10 - Part 1",
+            "heading": "Lab 10 Part 1: CRUD Operations",
+            "description": "List, add, edit, and delete books using direct model operations.",
+            "books": books,
+            "add_url_name": "lab10-part1-add",
+            "edit_url_name": "lab10-part1-edit",
+            "delete_url_name": "lab10-part1-delete",
+        },
+    )
+
+
+def _manual_book_payload(request):
+    title = request.POST.get("title", "").strip()
+    author = request.POST.get("author", "").strip()
+    price = request.POST.get("price", "").strip()
+    edition = request.POST.get("edition", "").strip()
+
+    errors = {}
+    if not title:
+        errors["title"] = "Title is required."
+    if not author:
+        errors["author"] = "Author is required."
+
+    try:
+        price_value = float(price)
+        if price_value <= 0:
+            errors["price"] = "Price must be greater than zero."
+    except ValueError:
+        errors["price"] = "Price must be a valid number."
+        price_value = 0.0
+
+    try:
+        edition_value = int(edition)
+        if edition_value < 1:
+            errors["edition"] = "Edition must be at least 1."
+    except ValueError:
+        errors["edition"] = "Edition must be a whole number."
+        edition_value = 1
+
+    return {
+        "title": title,
+        "author": author,
+        "price": price,
+        "edition": edition,
+    }, errors, price_value, edition_value
+
+
+def lab10_part1_add_book(request):
+    initial = {"title": "", "author": "", "price": "0.0", "edition": "1"}
+    errors = {}
+
+    if request.method == "POST":
+        initial, errors, price_value, edition_value = _manual_book_payload(request)
+        if not errors:
+            Book.objects.create(
+                title=initial["title"],
+                author=initial["author"],
+                price=price_value,
+                edition=edition_value,
+            )
+            return redirect("lab10-part1-list")
+
+    return render(
+        request,
+        "bookmodule/lab10_book_form_manual.html",
+        {
+            "page_title": "Lab 10 - Part 1 Add Book",
+            "heading": "Add Book (Part 1)",
+            "description": "Creates a new book using direct Django model operations.",
+            "values": initial,
+            "errors": errors,
+            "submit_label": "Create Book",
+            "cancel_url_name": "lab10-part1-list",
+        },
+    )
+
+
+def lab10_part1_edit_book(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+    initial = {
+        "title": book.title,
+        "author": book.author,
+        "price": str(book.price),
+        "edition": str(book.edition),
+    }
+    errors = {}
+
+    if request.method == "POST":
+        initial, errors, price_value, edition_value = _manual_book_payload(request)
+        if not errors:
+            book.title = initial["title"]
+            book.author = initial["author"]
+            book.price = price_value
+            book.edition = edition_value
+            book.save()
+            return redirect("lab10-part1-list")
+
+    return render(
+        request,
+        "bookmodule/lab10_book_form_manual.html",
+        {
+            "page_title": "Lab 10 - Part 1 Edit Book",
+            "heading": f"Edit Book (Part 1): {book.title}",
+            "description": "Updates the selected book using direct Django model operations.",
+            "values": initial,
+            "errors": errors,
+            "submit_label": "Update Book",
+            "cancel_url_name": "lab10-part1-list",
+        },
+    )
+
+
+def lab10_part1_delete_book(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+    book.delete()
+    return redirect("lab10-part1-list")
+
+
+def lab10_part2_list_books(request):
+    books = Book.objects.order_by("title", "id")
+    return render(
+        request,
+        "bookmodule/lab10_book_list.html",
+        {
+            "page_title": "Lab 10 - Part 2",
+            "heading": "Lab 10 Part 2: CRUD With Validation",
+            "description": "List, add, edit, and delete books using Django forms validation.",
+            "books": books,
+            "add_url_name": "lab10-part2-add",
+            "edit_url_name": "lab10-part2-edit",
+            "delete_url_name": "lab10-part2-delete",
+        },
+    )
+
+
+def lab10_part2_add_book(request):
+    form = BookForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab10-part2-list")
+
+    return render(
+        request,
+        "bookmodule/lab10_book_form_validated.html",
+        {
+            "page_title": "Lab 10 - Part 2 Add Book",
+            "heading": "Add Book (Part 2)",
+            "description": "Creates a new book using a Django form with validation.",
+            "form": form,
+            "submit_label": "Create Book",
+            "cancel_url_name": "lab10-part2-list",
+        },
+    )
+
+
+def lab10_part2_edit_book(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+    form = BookForm(request.POST or None, instance=book)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab10-part2-list")
+
+    return render(
+        request,
+        "bookmodule/lab10_book_form_validated.html",
+        {
+            "page_title": "Lab 10 - Part 2 Edit Book",
+            "heading": f"Edit Book (Part 2): {book.title}",
+            "description": "Updates the selected book using a Django form with validation.",
+            "form": form,
+            "submit_label": "Update Book",
+            "cancel_url_name": "lab10-part2-list",
+        },
+    )
+
+
+def lab10_part2_delete_book(request, book_id):
+    book = get_object_or_404(Book, pk=book_id)
+    book.delete()
+    return redirect("lab10-part2-list")

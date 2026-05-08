@@ -1,0 +1,37 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ heading }}</h1>
+    <p>{{ description }}</p>
+    <form method="post" action="">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div>
+                <label for="title">Title</label>
+                <input id="title" name="title" type="text" value="{{ values.title }}" />
+                {% if errors.title %}<p class="error message">{{ errors.title }}</p>{% endif %}
+            </div>
+            <div>
+                <label for="author">Author</label>
+                <input id="author" name="author" type="text" value="{{ values.author }}" />
+                {% if errors.author %}<p class="error message">{{ errors.author }}</p>{% endif %}
+            </div>
+            <div>
+                <label for="price">Price</label>
+                <input id="price" name="price" type="text" value="{{ values.price }}" />
+                {% if errors.price %}<p class="error message">{{ errors.price }}</p>{% endif %}
+            </div>
+            <div>
+                <label for="edition">Edition</label>
+                <input id="edition" name="edition" type="text" value="{{ values.edition }}" />
+                {% if errors.edition %}<p class="error message">{{ errors.edition }}</p>{% endif %}
+            </div>
+        </div>
+        <button type="submit">{{ submit_label }}</button>
+        <a href="{% url cancel_url_name %}">Cancel</a>
+    </form>
+</div>
+{% endblock content %}
