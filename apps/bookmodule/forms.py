@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Book
+from .models import Address2, Book, GalleryItem, Student, Student2
 
 
 class BookForm(forms.ModelForm):
@@ -19,3 +19,26 @@ class BookForm(forms.ModelForm):
         if edition < 1:
             raise forms.ValidationError("Edition must be at least 1.")
         return edition
+
+
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ["name", "age", "address"]
+
+
+class Student2Form(forms.ModelForm):
+    addresses = forms.ModelMultipleChoiceField(
+        queryset=Address2.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = Student2
+        fields = ["name", "age", "addresses"]
+
+
+class GalleryItemForm(forms.ModelForm):
+    class Meta:
+        model = GalleryItem
+        fields = ["title", "description", "image"]

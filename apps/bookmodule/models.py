@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
 
@@ -68,3 +69,41 @@ class Student(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Address2(models.Model):
+    city = models.CharField(max_length=120)
+
+    class Meta:
+        ordering = ["city", "id"]
+
+    def __str__(self):
+        return self.city
+
+
+class Student2(models.Model):
+    name = models.CharField(max_length=150)
+    age = models.PositiveIntegerField()
+    addresses = models.ManyToManyField(Address2, related_name="students", blank=True)
+
+    class Meta:
+        ordering = ["name", "id"]
+
+    def __str__(self):
+        return self.name
+
+
+class GalleryItem(models.Model):
+    title = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    image = models.FileField(
+        upload_to="gallery/",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "gif"])],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["title", "id"]
+
+    def __str__(self):
+        return self.title

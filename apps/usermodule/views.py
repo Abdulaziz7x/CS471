@@ -1,31 +1,36 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import redirect, render
+
+from .forms import RegisterForm
 
 
 def register_user(request):
-    submitted = None
-    errors = {}
-
+    form = RegisterForm(request.POST or None)
     if request.method == "POST":
-        full_name = request.POST.get("full_name", "").strip()
-        email = request.POST.get("email", "").strip()
-        city = request.POST.get("city", "").strip()
-        program = request.POST.get("program", "").strip()
+        if form.is_valid():
+            form.save()
+            messages.success(request, "You have successfully registered.")
+            return redirect("user-login")
+        messages.error(request, "Error message.")
+    return render(request, "usermodule/register.html", {"form": form})
 
-        if not full_name:
-            errors["full_name"] = "Full name is required."
-        if not email:
-            errors["email"] = "Email is required."
 
-        if not errors:
-            submitted = {
-                "full_name": full_name,
-                "email": email,
-                "city": city or "Not provided",
-                "program": program or "CS471",
-            }
+def login_user(request):
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, "Login successfully.")
+            next_url = request.GET.get("next") or request.POST.get("next")
+            return redirect(next_url or "lab11-index")
+        messages.error(request, "Error message.")
+    return render(request, "usermodule/login.html", {"form": form})
 
-    return render(
-        request,
-        "usermodule/register.html",
-        {"submitted": submitted, "errors": errors},
-    )
+
+def logout_user(request):
+    logout(request)
+    messages.success(request, "You have successfully logged out.")
+    return redirect("user-login")

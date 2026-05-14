@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Lab 11 Overview{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>Lab 11: Django Forms (Part 2)</h1>
+    <p>This lab covers one-to-many forms, many-to-many forms, and file/image upload handling.</p>
+</div>
+
+{% for task in tasks %}
+<div class="card">
+    <h2>{{ task.title }}</h2>
+    <p>{{ task.description }}</p>
+    <a href="{% url task.url_name %}">Open {{ task.title }}</a>
+</div>
+{% endfor %}
+{% endblock content %}

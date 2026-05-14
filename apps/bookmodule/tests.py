@@ -1,11 +1,15 @@
 from datetime import date, datetime
+import tempfile
 
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Avg, Count, Max, Min, Q, Sum
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.test.utils import override_settings
 
-from .models import Address, Author, Book, Publisher, Student
+from .models import Address, Address2, Author, Book, GalleryItem, Publisher, Student, Student2
 
 
 class BookModuleTests(TestCase):
@@ -15,7 +19,11 @@ class BookModuleTests(TestCase):
         Publisher.objects.all().delete()
         Student.objects.all().delete()
         Address.objects.all().delete()
+        Student2.objects.all().delete()
+        Address2.objects.all().delete()
+        GalleryItem.objects.all().delete()
         Book.objects.all().delete()
+        cls.auth_user = User.objects.create_user(username="labuser", password="testpass123")
 
         cls.publisher_riyadh = Publisher.objects.create(name="Riyadh Reads", location="Riyadh")
         cls.publisher_jeddah = Publisher.objects.create(name="Jeddah House", location="Jeddah")
@@ -122,6 +130,9 @@ class BookModuleTests(TestCase):
         riyadh = Address.objects.create(city="Riyadh")
         jeddah = Address.objects.create(city="Jeddah")
         dammam = Address.objects.create(city="Dammam")
+        cls.address2_riyadh = Address2.objects.create(city="Riyadh")
+        cls.address2_jeddah = Address2.objects.create(city="Jeddah")
+        cls.address2_dammam = Address2.objects.create(city="Dammam")
         Student.objects.create(name="Sara", age=21, address=riyadh)
         Student.objects.create(name="Faisal", age=22, address=riyadh)
         Student.objects.create(name="Lama", age=20, address=jeddah)
@@ -283,6 +294,56 @@ class BookModuleTests(TestCase):
         self.assertEqual(stats["Riyadh Reads"], 1)
         self.assertEqual(stats["Jeddah House"], 0)
         self.assertEqual(stats["Dammam Press"], 2)
+
+    def test_lab11_routes_require_login(self):
+        response = self.client.get(reverse("lab11-index"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("user-login"), response.url)
+
+    def test_lab11_task1_add_student_creates_record(self):
+        self.client.login(username="labuser", password="testpass123")
+        address = Address.objects.get(city="Riyadh")
+        response = self.client.post(
+            reverse("lab11-task1-add"),
+            {"name": "Mona Salem", "age": "25", "address": str(address.id)},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Student.objects.filter(name="Mona Salem", address=address).exists())
+
+    def test_lab11_task1_edit_student_updates_record(self):
+        self.client.login(username="labuser", password="testpass123")
+        student = Student.objects.get(name="Sara")
+        address = Address.objects.get(city="Jeddah")
+        response = self.client.post(
+            reverse("lab11-task1-edit", args=[student.id]),
+            {"name": "Sara Updated", "age": "26", "address": str(address.id)},
+        )
+        self.assertEqual(response.status_code, 302)
+        student.refresh_from_db()
+        self.assertEqual(student.name, "Sara Updated")
+        self.assertEqual(student.address, address)
+
+    def test_lab11_task2_add_student_with_multiple_addresses(self):
+        self.client.login(username="labuser", password="testpass123")
+        address_ids = [self.address2_riyadh.id, self.address2_dammam.id]
+        response = self.client.post(
+            reverse("lab11-task2-add"),
+            {"name": "Dual Address Student", "age": "27", "addresses": [str(address_id) for address_id in address_ids]},
+        )
+        self.assertEqual(response.status_code, 302)
+        student = Student2.objects.get(name="Dual Address Student")
+        self.assertEqual(student.addresses.count(), 2)
+
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
+    def test_lab11_task3_add_gallery_item_uploads_file(self):
+        self.client.login(username="labuser", password="testpass123")
+        image = SimpleUploadedFile("sample.jpg", b"fake-image-bytes", content_type="image/jpeg")
+        response = self.client.post(
+            reverse("lab11-task3-add"),
+            {"title": "Lab Poster", "description": "Poster upload", "image": image},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(GalleryItem.objects.filter(title="Lab Poster").exists())
 
     def test_lab10_part1_add_book_creates_record(self):
         response = self.client.post(

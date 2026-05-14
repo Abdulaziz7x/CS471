@@ -1,11 +1,11 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}User Registration{% endblock title %}
+{% block title %}Register{% endblock title %}
 
 {% block content %}
 <div class="card">
-    <h1>User Registration</h1>
-    <p>Lab 6 POST form handling example in Django.</p>
+    <h1>Register</h1>
+    <p>Create a Django auth user account for the Lab 12 flows.</p>
 </div>
 
 <div class="card">
@@ -13,39 +13,27 @@
         {% csrf_token %}
         <div class="form-grid">
             <div>
-                <label for="full_name">Full Name</label>
-                <input id="full_name" type="text" name="full_name" value="{{ request.POST.full_name }}" placeholder="Enter full name">
-                {% if errors.full_name %}<div class="message error">{{ errors.full_name }}</div>{% endif %}
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+                {{ form.username.errors }}
             </div>
             <div>
-                <label for="email">Email</label>
-                <input id="email" type="email" name="email" value="{{ request.POST.email }}" placeholder="Enter email">
-                {% if errors.email %}<div class="message error">{{ errors.email }}</div>{% endif %}
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+                {{ form.email.errors }}
             </div>
             <div>
-                <label for="city">City</label>
-                <input id="city" type="text" name="city" value="{{ request.POST.city }}" placeholder="Enter city">
+                <label for="{{ form.password1.id_for_label }}">Password</label>
+                {{ form.password1 }}
+                {{ form.password1.errors }}
             </div>
             <div>
-                <label for="program">Program</label>
-                <input id="program" type="text" name="program" value="{{ request.POST.program }}" placeholder="Enter program">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                {{ form.password2 }}
+                {{ form.password2.errors }}
             </div>
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit">Register</button>
     </form>
-</div>
-
-<div class="card">
-    {% if submitted %}
-        <div class="message success">Form submitted successfully.</div>
-        <table>
-            <tr><th>Full Name</th><td>{{ submitted.full_name }}</td></tr>
-            <tr><th>Email</th><td>{{ submitted.email }}</td></tr>
-            <tr><th>City</th><td>{{ submitted.city }}</td></tr>
-            <tr><th>Program</th><td>{{ submitted.program }}</td></tr>
-        </table>
-    {% else %}
-        <p>Submitted values will be displayed here after posting the form.</p>
-    {% endif %}
 </div>
 {% endblock content %}

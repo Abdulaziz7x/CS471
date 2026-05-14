@@ -1,10 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, Count, Max, Min, OuterRef, Q, Subquery, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import BookForm
-from .models import Address, Book, Publisher
+from .forms import BookForm, GalleryItemForm, Student2Form, StudentForm
+from .models import Address, Address2, Book, GalleryItem, Publisher, Student, Student2
 
 
 BOOKS = [
@@ -620,3 +621,194 @@ def lab10_part2_delete_book(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
     book.delete()
     return redirect("lab10-part2-list")
+
+
+@login_required
+def lab11_index(request):
+    tasks = [
+        {
+            "title": "Task 1",
+            "description": "CRUD students with a single Address using Django form fields.",
+            "url_name": "lab11-task1-list",
+        },
+        {
+            "title": "Task 2",
+            "description": "CRUD students with multiple addresses using a many-to-many relationship.",
+            "url_name": "lab11-task2-list",
+        },
+        {
+            "title": "Task 3",
+            "description": "Manage a custom image/file table using Django forms and upload handling.",
+            "url_name": "lab11-task3-list",
+        },
+    ]
+    return render(request, "bookmodule/lab11_index.html", {"tasks": tasks})
+
+
+@login_required
+def lab11_task1_list_students(request):
+    students = Student.objects.select_related("address").order_by("name", "id")
+    return render(
+        request,
+        "bookmodule/lab11_students_list.html",
+        {
+            "page_title": "Lab 11 - Task 1",
+            "heading": "Lab 11 Task 1: Students and One Address",
+            "description": "List, add, edit, and delete students with one address per student.",
+            "students": students,
+            "add_url_name": "lab11-task1-add",
+            "edit_url_name": "lab11-task1-edit",
+            "delete_url_name": "lab11-task1-delete",
+            "many_to_many": False,
+        },
+    )
+
+
+@login_required
+def lab11_task1_add_student(request):
+    form = StudentForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab11-task1-list")
+    return render(
+        request,
+        "bookmodule/lab11_student_form.html",
+        {
+            "page_title": "Lab 11 - Add Student",
+            "heading": "Add Student (One Address)",
+            "description": "Create a student and assign one address using a Django form field.",
+            "form": form,
+            "submit_label": "Create Student",
+            "cancel_url_name": "lab11-task1-list",
+        },
+    )
+
+
+@login_required
+def lab11_task1_edit_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    form = StudentForm(request.POST or None, instance=student)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab11-task1-list")
+    return render(
+        request,
+        "bookmodule/lab11_student_form.html",
+        {
+            "page_title": "Lab 11 - Edit Student",
+            "heading": f"Edit Student: {student.name}",
+            "description": "Update the student and its single address.",
+            "form": form,
+            "submit_label": "Update Student",
+            "cancel_url_name": "lab11-task1-list",
+        },
+    )
+
+
+@login_required
+def lab11_task1_delete_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    student.delete()
+    return redirect("lab11-task1-list")
+
+
+@login_required
+def lab11_task2_list_students(request):
+    students = Student2.objects.prefetch_related("addresses").order_by("name", "id")
+    return render(
+        request,
+        "bookmodule/lab11_students_list.html",
+        {
+            "page_title": "Lab 11 - Task 2",
+            "heading": "Lab 11 Task 2: Students and Multiple Addresses",
+            "description": "List, add, edit, and delete students in a many-to-many relationship.",
+            "students": students,
+            "add_url_name": "lab11-task2-add",
+            "edit_url_name": "lab11-task2-edit",
+            "delete_url_name": "lab11-task2-delete",
+            "many_to_many": True,
+        },
+    )
+
+
+@login_required
+def lab11_task2_add_student(request):
+    form = Student2Form(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab11-task2-list")
+    return render(
+        request,
+        "bookmodule/lab11_student_form.html",
+        {
+            "page_title": "Lab 11 - Add Student2",
+            "heading": "Add Student (Multiple Addresses)",
+            "description": "Create a student and assign multiple addresses using a many-to-many field.",
+            "form": form,
+            "submit_label": "Create Student",
+            "cancel_url_name": "lab11-task2-list",
+        },
+    )
+
+
+@login_required
+def lab11_task2_edit_student(request, student_id):
+    student = get_object_or_404(Student2, pk=student_id)
+    form = Student2Form(request.POST or None, instance=student)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab11-task2-list")
+    return render(
+        request,
+        "bookmodule/lab11_student_form.html",
+        {
+            "page_title": "Lab 11 - Edit Student2",
+            "heading": f"Edit Student: {student.name}",
+            "description": "Update the student and its address selections.",
+            "form": form,
+            "submit_label": "Update Student",
+            "cancel_url_name": "lab11-task2-list",
+        },
+    )
+
+
+@login_required
+def lab11_task2_delete_student(request, student_id):
+    student = get_object_or_404(Student2, pk=student_id)
+    student.delete()
+    return redirect("lab11-task2-list")
+
+
+@login_required
+def lab11_task3_list_gallery(request):
+    items = GalleryItem.objects.order_by("title", "id")
+    return render(
+        request,
+        "bookmodule/lab11_gallery_list.html",
+        {
+            "page_title": "Lab 11 - Task 3",
+            "heading": "Lab 11 Task 3: File/Image Handling",
+            "description": "Manage a custom gallery-style table with uploaded image files.",
+            "items": items,
+        },
+    )
+
+
+@login_required
+def lab11_task3_add_gallery_item(request):
+    form = GalleryItemForm(request.POST or None, request.FILES or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("lab11-task3-list")
+    return render(
+        request,
+        "bookmodule/lab11_gallery_form.html",
+        {
+            "page_title": "Lab 11 - Add Gallery Item",
+            "heading": "Add Gallery Item",
+            "description": "Upload an image file through Django form handling.",
+            "form": form,
+            "submit_label": "Create Item",
+            "cancel_url_name": "lab11-task3-list",
+        },
+    )

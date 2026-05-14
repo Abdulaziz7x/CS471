@@ -1,0 +1,50 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h1>{{ heading }}</h1>
+    <p>{{ description }}</p>
+    <p><a href="{% url add_url_name %}">Add Student</a></p>
+
+    {% if students %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Address{% if many_to_many %}es{% endif %}</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.age }}</td>
+                        <td>
+                            {% if many_to_many %}
+                                {% for address in student.addresses.all %}
+                                    {{ address.city }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    No addresses
+                                {% endfor %}
+                            {% else %}
+                                {{ student.address.city }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url edit_url_name student.id %}">Edit</a>
+                            |
+                            <a href="{% url delete_url_name student.id %}">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No students found.</p>
+    {% endif %}
+</div>
+{% endblock content %}
